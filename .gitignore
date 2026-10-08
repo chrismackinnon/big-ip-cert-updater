@@ -1,0 +1,14 @@
+# Never commit key material or real certificates
+*.key
+*.pem
+*.p12
+*.pfx
+*.csr
+*.crt
+*.cer
+*.p7b
+*.zip
+ready-*/
+# Real job files (only the TEMPLATE-*.example files belong in the repo)
+bigip/jobs.d/*.conf
+.DS_Store

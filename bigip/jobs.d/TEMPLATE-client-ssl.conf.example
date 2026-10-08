@@ -1,0 +1,42 @@
+# -----------------------------------------------------------------------------
+# certrotate job: replace the certificate on an EXISTING client-ssl profile
+# (the certificate your users/browsers see).
+#
+# To use: copy to  /shared/certrotate/jobs.d/<jobname>.conf  on BOTH BIG-IPs,
+#         then edit the lines marked  <-- CHANGE.
+#         The job name is the file name without .conf (e.g. www_example_com).
+# -----------------------------------------------------------------------------
+
+# Where new files are picked up from. prepare-cert.sh -j <jobname> uploads here.
+SOURCE_TYPE=local
+# Ignore files changed in the last N seconds (protects against half-copied uploads).
+# prepare-cert.sh moves files into place in one step, so a short wait is enough.
+STABLE_SECONDS=10
+SOURCE_DIR=/shared/certrotate/inbox/www_example_com         # <-- CHANGE (must end in the job name)
+
+# Name used for the new BIG-IP objects: <OBJ_PREFIX>_<timestamp>.crt / .key / _chain.crt
+OBJ_PREFIX=www.example.com                                   # <-- CHANGE
+
+# The profile to update
+PROFILE_TYPE=client-ssl
+PROFILE_NAME=/Common/clientssl_www_example_com               # <-- CHANGE
+
+# Only needed if the profile has MORE THAN ONE certificate entry (e.g. RSA + ECDSA).
+# Find entry names with:  tmsh list ltm profile client-ssl <profile> cert-key-chain
+#CKC_ENTRY=default
+
+# Safety checks - the new certificate is refused (nothing changes) if any fail
+EXPECT_NAME=www.example.com                                  # <-- CHANGE: must be on the certificate
+MIN_DAYS_VALID=7
+REQUIRE_CHAIN=yes                                            # DigiCert certs always need the intermediate
+MIN_RSA_BITS=2048
+
+# Optional live check after the change: connect to the virtual server and confirm
+# the new certificate is served; if not, the change is automatically rolled back.
+# Only enable if the BIG-IP can reach this address/port from its own shell.
+#VERIFY_HOST=10.1.10.100
+#VERIFY_PORT=443
+#VERIFY_SNI=www.example.com
+
+# Keep the current + previous certificate objects (for quick rollback). Older ones are deleted.
+RETAIN_VERSIONS=2

@@ -1,0 +1,32 @@
+# -----------------------------------------------------------------------------
+# certrotate job: CREATE a new client-ssl profile the first time it runs
+# (optionally attaching it to a virtual server). Later runs simply rotate it.
+#
+# Attaching a profile to a virtual server changes how that VS behaves - treat
+# the FIRST run as a normal change-controlled change.
+# -----------------------------------------------------------------------------
+
+SOURCE_TYPE=local
+# Ignore files changed in the last N seconds (protects against half-copied uploads).
+# prepare-cert.sh moves files into place in one step, so a short wait is enough.
+STABLE_SECONDS=10
+SOURCE_DIR=/shared/certrotate/inbox/api_example_com          # <-- CHANGE (must end in the job name)
+
+OBJ_PREFIX=api.example.com                                   # <-- CHANGE
+PROFILE_TYPE=client-ssl
+PROFILE_NAME=/Common/clientssl_api_example_com               # <-- CHANGE
+CREATE_IF_MISSING=yes
+PARENT_PROFILE=/Common/clientssl                             # or your hardened parent profile
+
+# Optional: SNI, if several sites share one virtual server
+#SNI_SERVER_NAME=api.example.com
+#SNI_DEFAULT=false
+
+# Optional: attach to a virtual server on first run
+#ATTACH_VIRTUAL=/Common/vs_api_443
+#ATTACH_MODE=add          # add = only if the VS has no client-ssl profile yet (safe)
+
+EXPECT_NAME=api.example.com                                  # <-- CHANGE
+MIN_DAYS_VALID=7
+REQUIRE_CHAIN=yes
+RETAIN_VERSIONS=2

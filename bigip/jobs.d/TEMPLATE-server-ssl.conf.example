@@ -1,0 +1,24 @@
+# -----------------------------------------------------------------------------
+# certrotate job: replace the CLIENT certificate a server-ssl profile presents
+# to the back-end servers (mutual TLS to the pool members).
+#
+# IMPORTANT: the back-end servers must already trust the new certificate's
+# issuer BEFORE you rotate, or new server-side connections will fail.
+#
+# To use: copy to  /shared/certrotate/jobs.d/<jobname>.conf  on BOTH BIG-IPs.
+# -----------------------------------------------------------------------------
+
+SOURCE_TYPE=local
+# Ignore files changed in the last N seconds (protects against half-copied uploads).
+# prepare-cert.sh moves files into place in one step, so a short wait is enough.
+STABLE_SECONDS=10
+SOURCE_DIR=/shared/certrotate/inbox/backend_mtls             # <-- CHANGE (must end in the job name)
+
+OBJ_PREFIX=bigip-backend-client                              # <-- CHANGE
+PROFILE_TYPE=server-ssl
+PROFILE_NAME=/Common/serverssl_backend_mtls                  # <-- CHANGE
+
+EXPECT_NAME=""                                               # optional for client certs
+MIN_DAYS_VALID=14
+REQUIRE_CHAIN=yes
+RETAIN_VERSIONS=2
